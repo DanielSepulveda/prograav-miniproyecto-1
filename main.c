@@ -15,10 +15,18 @@ struct recipesMatrix {
   int **percentages; 
 };
 
+int findIndex(char **strArray, int size, char *str) {
+  for(int i = 0; i < size; i++){
+    if(!strcmp(strArray[i], str)) return i;
+  }
+  // if string not found in array
+  return -1;
+}
+
 char **append(char **oldMatrix, int *size, const char str[1024]) {
   int strFound = 0;
   for(int i = 0; i < *size; i++){
-    if(strcmp(oldMatrix[i], str) == 0){
+    if(!strcmp(oldMatrix[i], str)){
       strFound = 1;
       break;
     }
@@ -35,7 +43,7 @@ char **append(char **oldMatrix, int *size, const char str[1024]) {
 
 void readRecipes(FILE *ptrFile, RecipesMatrix *recipesMatrix) {
   // for file reading 
-  int percentage, currPercentage, currRecipe ;
+  int percentage, currPercentage, currRecipe, index;
   char word[1024], delim[2] = ":", *token, c;
 
   (*recipesMatrix).recipes = (char **)malloc(sizeof(char *));
@@ -51,7 +59,7 @@ void readRecipes(FILE *ptrFile, RecipesMatrix *recipesMatrix) {
       // separate strings using ":" as delimiter
       token = strtok(word, delim);
       // if the string "Recipe" is found before ":"...
-      if(strcmp(token, "Recipe") == 0) {
+      if(!strcmp(token, "Recipe")) {
         // allocate recipes names with spaces
         c = getc(ptrFile);
         while(c != '\n') {
@@ -61,7 +69,7 @@ void readRecipes(FILE *ptrFile, RecipesMatrix *recipesMatrix) {
         (*recipesMatrix).recipes = append((*recipesMatrix).recipes, &(*recipesMatrix).recipesSize, token);
       }
       // if the string "Ingredients" is found before ":"...
-      if(strcmp(word, "Ingredients") == 0) {
+      if(!strcmp(word, "Ingredients")) {
         percentage = 0;
         // TODO: add a condition for percentages exceding 100%
         while(percentage < 100) {
@@ -90,21 +98,22 @@ void readRecipes(FILE *ptrFile, RecipesMatrix *recipesMatrix) {
     while(!feof(ptrFile)) {
       fscanf(ptrFile, "%1023s", word);
       token = strtok(word, delim);
-      if(strcmp(word, "Ingredients") == 0) {
+      if(!strcmp(word, "Ingredients")) {
         percentage = 0;
-        currPercentage = 0;
+        //currPercentage = 0;
         // TODO: add a condition for percentages exceding 100%
         while(percentage < 100) {
           fscanf(ptrFile, "%1023s", word);
           // separate strings using ":" as delimiter
           token = strtok(word, delim);
+          index = findIndex((*recipesMatrix).ingredients, (*recipesMatrix).ingredientsSize, token);
           // obtain the second token from "ingredient name:percentage"
           token = strtok(NULL, delim);
           // insert percentage in percentages matrix
-          (*recipesMatrix).percentages[currRecipe][currPercentage] = atoi(token);
+          (*recipesMatrix).percentages[currRecipe][index] = atoi(token);
           // cast token from str to int
           percentage += atoi(token);
-          currPercentage++;
+          //currPercentage++;
         }
         currRecipe++;
       }
@@ -113,7 +122,6 @@ void readRecipes(FILE *ptrFile, RecipesMatrix *recipesMatrix) {
   else {
     printf("Error while opening file\n");
   }
-
 }
 
 int main (void) {
