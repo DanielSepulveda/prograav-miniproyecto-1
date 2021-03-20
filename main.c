@@ -15,6 +15,8 @@ struct recipesMatrix {
   int **percentages; 
 };
 
+
+
 int findIndex(char **strArray, int size, char *str) {
   for(int i = 0; i < size; i++){
     if(!strcmp(strArray[i], str)) return i;
@@ -91,8 +93,10 @@ void readRecipes(FILE *ptrFile, RecipesMatrix *recipesMatrix) {
 
     // allocate percentages matrix
     (*recipesMatrix).percentages = (int **)malloc((*recipesMatrix).recipesSize * sizeof(int *));
-    for(int i = 0; i < (*recipesMatrix).recipesSize; i++)
+    for(int i = 0; i < (*recipesMatrix).recipesSize; i++){
       (*recipesMatrix).percentages[i] = (int *)malloc((*recipesMatrix).ingredientsSize * sizeof(int));
+      for(int j = 0; j < (*recipesMatrix).ingredientsSize; j++) (*recipesMatrix).percentages[i][j] = 0;
+    }
     
     currRecipe = 0;
     while(!feof(ptrFile)) {
@@ -111,6 +115,7 @@ void readRecipes(FILE *ptrFile, RecipesMatrix *recipesMatrix) {
           token = strtok(NULL, delim);
           // insert percentage in percentages matrix
           (*recipesMatrix).percentages[currRecipe][index] = atoi(token);
+          printf("%d ", (*recipesMatrix).percentages[currRecipe][index]);
           // cast token from str to int
           percentage += atoi(token);
           //currPercentage++;
