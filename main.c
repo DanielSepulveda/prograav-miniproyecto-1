@@ -285,8 +285,6 @@ double** pairwiseComparison (FileInfo* fileInfo) {
  * @param outputFile {char*}
  * @param fileInfo {FileInfo*}
  * @param distance {double**}
- * 
- * @return matrix with the euclidean distances
  */
 void makeGraph(char* outputFile, FileInfo* fileInfo, double** distance) {
 
