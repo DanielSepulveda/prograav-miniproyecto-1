@@ -2,8 +2,10 @@
 #include <string.h>
 #include <stdlib.h>
 #include <math.h>
+#include <ctype.h>
 
 #define PRLN printf("\n");
+#define MAX_EDGE_LEN 10
 
 /**
  * Ingredient Struct
@@ -129,6 +131,11 @@ FileInfo readFileInfo(char* file) {
       // if the string "Recipe" is found before ":"...
       if(strcmp(token, "Recipe") == 0) {
         token = strtok(NULL, "");
+        // removes endline
+        size_t len = strlen(token);
+        if (isspace(token[len - 1]) != 0) {
+          token[len - 1] = '\0';
+        }
         // Create new recipe
         Recipe* newRecipe = (Recipe*)malloc(sizeof(Recipe));
         strcpy(newRecipe->name, token);
@@ -268,6 +275,53 @@ double** pairwiseComparison (FileInfo* fileInfo) {
 
   return (double**)matrix;
 }
+
+
+/**
+ * Generates a graph DOT definition used to visualize the graph with GraphViz.
+ * A visualization can be generated with GraphViz cli or at https://graphs.grevian.org/graph
+ * using "neato" layout method.
+ * 
+ * @param outputFile {char*}
+ * @param fileInfo {FileInfo*}
+ * @param distance {double**}
+ * 
+ * @return matrix with the euclidean distances
+ */
+void makeGraph(char* outputFile, FileInfo* fileInfo, double** distance) {
+
+    FILE* filePtr = fopen(outputFile, "w");
+
+    if (filePtr != NULL) {
+        fprintf(filePtr, "digraph G {\n");
+        
+        // calculates max distance to normalize for visualization
+        double maxDistance = 0.1;
+        for (int i = 0; i < fileInfo->recipesSize; i++) {
+          for (int j = i + 1; j < fileInfo->recipesSize; j++) {
+            if (distance[i][j] > maxDistance) maxDistance = distance[i][j];
+          }
+        }  
+
+        for (int i = 0; i < fileInfo->recipesSize; i++) {
+          for (int j = i + 1; j < fileInfo->recipesSize; j++) {
+            char* edgeFormat = "\t\"%s\" -> \"%s\"[dir=none, label=%f, len=%f]\n";
+            char* recipeI = fileInfo->recipes[i]->name;
+            char* recipeJ = fileInfo->recipes[j]->name;
+            double normalized = (distance[i][j] / maxDistance) * MAX_EDGE_LEN;
+            
+            fprintf(filePtr, edgeFormat, recipeI, recipeJ, distance[i][j], normalized);
+          }
+        }  
+
+        fprintf(filePtr, "}\n");
+
+        fclose(filePtr);
+        printf("Graph written in %s\n", outputFile);
+    } else {
+        printf("Output file could not be created\n");
+    }
+}
   
 int main (void) {
   FileInfo fileInfo = readFileInfo("Recipes.txt");
@@ -302,6 +356,8 @@ int main (void) {
     }
     PRLN
   }
+
+  makeGraph("output.gv", &fileInfo, matrix);
 
   return 0;
 }
