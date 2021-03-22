@@ -2,9 +2,7 @@
 
 ## Equipo
 
-- ...
-- ...
-- ...
+- A00824494 Elías Garza 
 - A00824854 Andrés Sánchez
 - A01193911 Daniel Sepúlveda
 
