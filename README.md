@@ -18,5 +18,5 @@
 
 ## Local development
 
-Correr makefile en la terminal con el comando `make`.
-Probar output.gv en [esta app web](https://graphs.grevian.org/graph)
+Correr makefile en la terminal con el comando `make`
+Probar output.gv en [esta app web](https://graphs.grevian.org/graph).
